@@ -1,0 +1,30 @@
+[
+  {
+    "name": "favorite-overwrite",
+    "setup_turns": [
+      "Remember that my favorite coin is Bitcoin.",
+      "Remember that my favorite coin is Ethereum."
+    ],
+    "query": "What is my favorite coin?",
+    "must_have": ["Ethereum"],
+    "should_not_have": ["Bitcoin"]
+  },
+  {
+    "name": "location-recall",
+    "setup_turns": [
+      "Remember that I live in Austin."
+    ],
+    "query": "Where do I live?",
+    "must_have": ["Austin"],
+    "should_not_have": []
+  },
+  {
+    "name": "preference-recall",
+    "setup_turns": [
+      "Remember that I prefer short answers."
+    ],
+    "query": "How should you format your answers for me?",
+    "must_have": ["short"],
+    "should_not_have": ["long answer"]
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "started_at": "2026-02-23T09:09:35.624494+00:00",
+  "finished_at": "2026-02-23T09:09:35.624500+00:00",
+  "duration_s": 0.0,
+  "mode": "both",
+  "memory_endpoint": "/chat",
+  "rounds": 10,
+  "dry_run": true,
+  "message": "Dry run completed. No HTTP calls were made."
+}

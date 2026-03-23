@@ -1,0 +1,23 @@
+[
+  {
+    "name": "planet-facts",
+    "prompt": "Use only these facts:\n1) Mercury is the closest planet to the Sun.\n2) Venus is the hottest planet.\nQuestion: Which planet is closest and which is hottest?",
+    "expected_terms": ["Mercury", "Venus"],
+    "forbidden_terms": ["Earth is closest", "Mars is hottest"],
+    "require_sources": false
+  },
+  {
+    "name": "capital-facts",
+    "prompt": "Answer using only this context:\nFrance capital: Paris.\nGermany capital: Berlin.\nQuestion: What is the capital of France and Germany?",
+    "expected_terms": ["Paris", "Berlin"],
+    "forbidden_terms": ["London", "Madrid"],
+    "require_sources": false
+  },
+  {
+    "name": "currency-facts",
+    "prompt": "Use only this context and do not add extra facts:\nJapan currency: Yen.\nIndia currency: Rupee.\nQuestion: What currencies are used in Japan and India?",
+    "expected_terms": ["Yen", "Rupee"],
+    "forbidden_terms": ["Dollar", "Euro"],
+    "require_sources": false
+  }
+]

@@ -1,0 +1,15 @@
+.env
+.git
+.gitignore
+.claude
+__pycache__
+*.pyc
+.venv
+venv
+app.log
+misc
+docs
+perf
+unsloth_compiled_cache
+requirements-dev.txt
+*.md
