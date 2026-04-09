@@ -1,0 +1,81 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync project to EC2
+        run: |
+          rsync -avz --delete \
+            --exclude='.env' \
+            --exclude='.git' \
+            --exclude='__pycache__' \
+            --exclude='.venv' \
+            --exclude='misc/' \
+            --exclude='app.log' \
+            --exclude='.claude/' \
+            -e "ssh -i ~/.ssh/id_ed25519" \
+            ./ \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/trinx-nebula/
+
+      - name: Write .env on EC2
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+              cat > /home/${{ secrets.EC2_USER }}/trinx-nebula/.env << ENVEOF
+          GROQ_API_KEYS=${{ secrets.GROQ_API_KEYS }}
+          GROQ_MODEL=openai/gpt-oss-120b
+          LANGCHAIN_TRACING_V2=true
+          LANGCHAIN_API_KEY=${{ secrets.LANGCHAIN_API_KEY }}
+          LANGCHAIN_PROJECT=TrinX-Nebula-Stream
+          LANGCHAIN_ENDPOINT=https://api.smith.langchain.com
+          MONGODB_CONNECTION_STRING=${{ secrets.MONGODB_CONNECTION_STRING }}
+          CRYPTOPANIC_API_KEY=${{ secrets.CRYPTOPANIC_API_KEY }}
+          CRYPTOCOMPARE_API_KEY=${{ secrets.CRYPTOCOMPARE_API_KEY }}
+          GNEWS_API_KEY=${{ secrets.GNEWS_API_KEY }}
+          TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}
+          REDIS_URL=redis://redis:6379/0
+          ENVEOF
+          EOF
+
+      - name: Deploy with Docker Compose
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+              cd /home/${{ secrets.EC2_USER }}/trinx-nebula &&
+              docker compose down || true &&
+              docker compose up -d --build
+            "
+
+      - name: Wait for health check
+        run: |
+          echo "Waiting for backend to start..."
+          sleep 15
+          ssh -i ~/.ssh/id_ed25519 \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+              curl -sf http://localhost:8000/health || echo 'Health check failed'
+            "
+
+      - name: Verify containers
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+              cd /home/${{ secrets.EC2_USER }}/trinx-nebula &&
+              docker compose ps
+            "

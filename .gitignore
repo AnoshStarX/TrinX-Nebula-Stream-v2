@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+app.log
+.claude/
+unsloth_compiled_cache/
+misc/
